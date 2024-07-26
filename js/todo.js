@@ -1,62 +1,65 @@
-const toDoForm = document.getElementById("todo-form");
-const toDoInput = toDoForm.querySelector("#todo-form input");
-const toDoList = document.getElementById("todo-list");
+const toDoForm = document.querySelector("#todo-form");
+const inputValue = toDoForm.querySelector("input");
+const toDoList = document.querySelector("#todo-list");
 
 const TODOS_KEY = "todos";
 
-//const였던 타입을 let으로 바꾸었다. 왜냐 todos를 새로 추가한후 새로고침하면 배열은 항상 null이라서
-//그전에 있던 데이터를 저장하지못하고 새로운값들만 저장할 수 있기때문이다.
 let toDos = [];
 
+//localstorage에  toDos를 저장하는 함수
+
 function saveToDos() {
-  //json.stringify가 toDos 의 배열요소들을 string으로 변형해준다!! 이거 필히 익히도록!!
   localStorage.setItem(TODOS_KEY, JSON.stringify(toDos));
 }
 
-function handleClickDelete(event) {
-  const lists = event.target.parentElement;
-  lists.remove();
-  toDos = toDos.filter((toDo) => toDo.id !== parseInt(lists.id));
+//UI에 표시된 toDo 리스트들을 삭제하는 함수
+function deleteLists(event) {
+  const deleteLists = event.target.parentElement;
+  deleteLists.remove();
+  toDos = toDos.filter((toDo) => toDo.id !== parseInt(deleteLists.id));
   saveToDos();
 }
-function paintTodo(newTodo) {
+
+//입력폼을 담당하는 함수
+function handleToDoSubmit(event) {
+  event.preventDefault();
+  const newTodo = inputValue.value;
+  inputValue.value = "";
+
+  //배열에 포함된 요소한테 각각의 고유번호를 주입하기 위하여 객체로 다시만듬
+  //왜 고유번호를 만드냐 -> 그걸로 삭제를 하게끔 유도.
+  const newTodoObject = {
+    text: newTodo,
+    id: Date.now(),
+  };
+
+  toDos.push(newTodoObject);
+  addTodo(newTodoObject);
+  saveToDos();
+}
+
+//입력폼에 todo를 UI로 보여주는 함수
+function addTodo(newTodo) {
   const lists = document.createElement("li");
   lists.id = newTodo.id;
-  const spans = document.createElement("span");
-  spans.innerText = newTodo.text;
-  const button = document.createElement("button");
-  button.addEventListener("click", handleClickDelete);
-  button.innerText = "❌";
-  button.style.background = "none";
-  button.style.borderRadius = "5px";
-  button.style.marginLeft = "10px";
-  lists.appendChild(spans);
-  lists.appendChild(button);
+  const spanLists = document.createElement("span");
+  const deleteButton = document.createElement("button");
+  deleteButton.addEventListener("click", deleteLists);
+  spanLists.innerText = newTodo.text;
+  deleteButton.innerText = "❌";
+  lists.appendChild(spanLists);
+  lists.appendChild(deleteButton);
   toDoList.appendChild(lists);
 }
 
-function handleToDoSubmit(event) {
-  event.preventDefault();
-  const newTodo = toDoInput.value;
-  toDoInput.value = "";
-  const newTodoObject = {
-    text: newTodo,
-    // 각 할일에다가 랜덤한 숫자를 부여해서 각각의 할일에 아이디를 부여해준다. <- 삭제되는것이 어떤 아이디인지를 알게 해줄려고!
-    id: Date.now(),
-  };
-  toDos.push(newTodoObject);
-  paintTodo(newTodoObject);
-  saveToDos();
-}
-
+//폼 제출 이벤트 리스너 함수 추가.
 toDoForm.addEventListener("submit", handleToDoSubmit);
 
+//저장된 toDo 로드
 const savedToDos = localStorage.getItem(TODOS_KEY);
-if (savedToDos) {
+
+if (savedToDos !== null) {
   const parsedToDos = JSON.parse(savedToDos);
   toDos = parsedToDos;
-  parsedToDos.forEach(paintTodo);
+  parsedToDos.forEach(addTodo);
 }
-//(item) => console.log("Hello this is", item) <- 화살표 함수
-//function sayHello(item){console.log("Hello this is", item)} <- 일반 함수
-//둘다 사용해도 무방하나 코드의 간결성을 위하여 화살표 함수를 사용.
