@@ -46,7 +46,7 @@ function addTodo(newTodo) {
   const deleteButton = document.createElement("button");
   deleteButton.addEventListener("click", deleteLists);
   spanLists.innerText = newTodo.text;
-  deleteButton.innerText = "❌";
+  deleteButton.innerText = "X";
   lists.appendChild(spanLists);
   lists.appendChild(deleteButton);
   toDoList.appendChild(lists);

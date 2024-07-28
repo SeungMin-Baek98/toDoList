@@ -16,7 +16,7 @@ function onGeoOk(position) {
       const temp = data.main.temp;
       const humdi = data.main.humidity;
       cityName.innerText = name;
-      weatherStatus.innerText = `${weather} / ${temp}도 / 습도 : ${humdi}`;
+      weatherStatus.innerText = `날씨 : ${weather} / ${temp} 도 / 습도 : ${humdi}`;
     });
 }
 
